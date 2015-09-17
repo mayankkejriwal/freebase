@@ -6,7 +6,7 @@ import java.util.*;
 public class Curate {
 
 	
-	static String path="C:\\Users\\Mayank\\SkyDrive\\Documents\\"
+	public static String path="C:\\Users\\Mayank\\SkyDrive\\Documents\\"
 			+ "experiments\\type-experiments\\experimental-data\\"; 
 	static String file=path+"f-db-jaccard-ranked.txt";
 	

@@ -1,4 +1,4 @@
-package datasetDetails;
+package evalsAndStatistics;
 
 import java.io.*;
 import java.util.*;

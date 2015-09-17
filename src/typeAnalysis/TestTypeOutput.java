@@ -1,4 +1,4 @@
-package datasetDetails;
+package typeAnalysis;
 
 import java.io.*;
 import java.util.*;
