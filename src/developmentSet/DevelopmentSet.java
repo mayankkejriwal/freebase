@@ -14,11 +14,73 @@ public class DevelopmentSet {
 	//	test();
 		//printNDuplicates(path+"freebaseDbpediaSameAsAppend", 
 			//	path+"500duplicates.txt",500);
-		
-		printNNonDuplicates(path+"500duplicates.txt", 
-					path+"5000NonDuplicates.txt",5000);
+	
+			testParseJSONMethods(path+"5000NonDuplicates.txt");
+		//printNNonDuplicates(path+"500duplicates.txt", 
+			//		path+"5000NonDuplicates.txt",5000);
 
 	}
+	
+	/*a scratchpad tester. We run the duplicates and non-duplicates files through
+	 * parseJSON (after splitting) to ensure no parsing errors. Already, we've 
+	 * detected a couple of bugs by doing this. Next, we'll print out
+	 * the output of parseJSONIntoStringFeatures to see whether the method behaves
+	 * as expected.
+	 */
+	public static void testParseJSONMethods(String pairsFile)throws IOException{
+		Scanner in=new Scanner(new FileReader(pairsFile));
+		while(in.hasNextLine()){
+			String line=in.nextLine();
+			String[] fields=line.split("\t\\{\t|\t\\}");
+		//	System.out.println(line);
+			String freebase=fields[1];
+		//	System.out.println(freebase);
+			String dbpedia=fields[3];
+		//	System.out.println(dbpedia);
+			ArrayList<HashMap<String, Integer>> db=parseJSONIntoStringFeatures(dbpedia.split("\t"));
+			ArrayList<HashMap<String, Integer>> fb=parseJSONIntoStringFeatures(freebase.split("\t"));
+			ArrayList<HashSet<String>> preppedDB=prepForAlphaJaccard(db);
+			ArrayList<HashSet<String>> preppedFB=prepForAlphaJaccard(fb);
+			ArrayList<Double> features=extractJaccardFeatures(preppedDB, preppedFB);
+			System.out.println(features);
+			break;
+		}
+		
+		in.close();
+	}
+	
+	public static ArrayList<Double> extractJaccardFeatures(ArrayList<HashSet<String>> preppedDB, ArrayList<HashSet<String>> preppedFB){
+		ArrayList<Double> features=new ArrayList<Double>();
+		for(int i=0; i<preppedDB.size(); i++)
+			for(int j=0; j<preppedFB.size(); j++){
+				features.add(similarities.Jaccard.computeJaccard(preppedDB.get(i), preppedFB.get(j)));
+			}
+		return features;
+	}
+	
+	public static ArrayList<HashSet<String>> prepForAlphaJaccard(ArrayList<HashMap<String,Integer>> list){
+		ArrayList<HashSet<String>> preppedList=new ArrayList<HashSet<String>>();
+		for(HashMap<String,Integer> map:list){
+			Set<String> keys=map.keySet();
+			HashSet<String> tmp=new HashSet<String>();
+			for(String key:keys)
+				if(isAlphabeticOnly(key))
+					tmp.add(key);
+			preppedList.add(tmp);
+		}
+		return preppedList;
+	}
+	//we've made this foolproof and tested it.
+	private static boolean isAlphabeticOnly(String key){
+		boolean result=true;
+		String lc=key.toLowerCase();
+		String uc=key.toUpperCase();
+		for(int i=0; i<key.length(); i++)
+			if(lc.charAt(i)==(uc.charAt(i)))
+				return false;
+		return result;
+	}
+	
 	
 	/**
 	 * ArrayList will contain exactly k hashmaps. Each map is a token together with
@@ -223,7 +285,7 @@ public class DevelopmentSet {
 			if(dbpediaIndex.get(dbpedia.get(k1)).contains(freebase.get(k2)))
 				continue;
 			out.println(Long.toString(i)+"x\tfreebase-instance\t{\t"+freebase.get(k2)+
-					"}\tdbpedia-instance\t{\t"+dbpedia.get(k1)+"\t}");
+					"\t}\tdbpedia-instance\t{\t"+dbpedia.get(k1)+"\t}");
 			i--;
 			count++;
 		}
