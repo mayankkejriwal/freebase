@@ -8,7 +8,7 @@ public class Curate {
 	
 	public static String path="C:\\Users\\Mayank\\SkyDrive\\Documents\\"
 			+ "experiments\\type-experiments\\experimental-data\\"; 
-	static String file=path+"f-db-jaccard-ranked.txt";
+	static String file=path+"pruned_curated_links";
 	
 	public static void main(String[] args)throws IOException {
 		//testDbpediaDelimiter(15);

@@ -49,6 +49,49 @@ public class DevelopmentSet {
 		in.close();
 	}
 	
+	/**
+	 * Send in a duplicates/non-duplicates file, and get a list of instances
+	 * Last value in each inner arraylist will be the class-value (1.0 for
+	 * duplicates, 0.0 for non-duplicates). Count should either be -1, or
+	 * the number of instances that should be extracted
+	 * @param pairsFile
+	 * @throws IOException
+	 */
+	public static ArrayList<ArrayList<Double>> extractInstances(String pairsFile, int count, double classValue)throws IOException{
+		ArrayList<ArrayList<Double>> result=null;
+		if(count!=-1)
+			result=new ArrayList<ArrayList<Double>>(count);
+		else{
+			count=Integer.MAX_VALUE;
+			result=new ArrayList<ArrayList<Double>>();
+		}
+		Scanner in=new Scanner(new FileReader(pairsFile));
+		int n=0;
+		while(in.hasNextLine() && n<count){
+			String line=in.nextLine();
+			String[] fields=line.split("\t\\{\t|\t\\}");
+		
+			ArrayList<Double> instance=
+					(extractJaccardFeatures(
+						prepForAlphaJaccard(
+							parseJSONIntoStringFeatures(fields[3].split("\t"))), 
+						prepForAlphaJaccard(
+							parseJSONIntoStringFeatures(fields[1].split("\t")))));
+			instance.add(classValue);
+			result.add(instance);
+			n++;
+		}
+		
+		in.close();
+		return result;
+	}
+	
+	//instances of b will be added to a. Make sure to set b to null after calling this.
+	public static void mergeInstances(ArrayList<ArrayList<Double>> a, ArrayList<ArrayList<Double>> b){
+		for(ArrayList<Double> k: b)
+			a.add(k);
+	}
+	
 	public static ArrayList<Double> extractJaccardFeatures(ArrayList<HashSet<String>> preppedDB, ArrayList<HashSet<String>> preppedFB){
 		ArrayList<Double> features=new ArrayList<Double>();
 		for(int i=0; i<preppedDB.size(); i++)
