@@ -7,8 +7,8 @@ public class Curate {
 
 	
 	public static String path="C:\\Users\\Mayank\\SkyDrive\\Documents\\"
-			+ "experiments\\type-experiments\\experimental-data\\"; 
-	static String file=path+"pruned_curated_links";
+			+ "experiments\\yago\\"; 
+	static String file=path+"curated_yago_links";
 	
 	public static void main(String[] args)throws IOException {
 		//testDbpediaDelimiter(15);
@@ -19,14 +19,31 @@ public class Curate {
 		//checkCounts();
 		//printFirstLastID(file);
 		
+		
+		
+		//filterRankedFile(file,path+"f-db-jaccard-top3.txt",3);
 		//debugCuratedInstanceTypes();
-		//printN(417);
-		printNumLines();
-		//curateTypesFile();
+		printN(5);
+		//printNumLines();
+		//curateLinksFileYago();
 
 	}
-	
-	
+	/*
+	 * takes a f-db-*-ranked.txt file, produces an output file that only
+	 * contains those lines with rank less than equal to 'rank'.
+	 */
+	public static void filterRankedFile(String infile, String outfile, int rank)throws IOException{
+		Scanner in=new Scanner(new FileReader(infile));
+		PrintWriter out=new PrintWriter(new File(outfile));
+		while(in.hasNextLine()){
+			String line=in.nextLine();
+			if(Integer.parseInt(line.split("\t")[3])<=rank)
+				out.println(line);
+		}
+		
+		in.close();
+		out.close();
+	}
 	
 	public static void debugCuratedInstanceTypes()throws IOException{
 		Scanner in=new Scanner(new FileReader(file));
@@ -202,6 +219,7 @@ public class Curate {
 			//if(line.trim().length()==0||line.substring(0, 1).equals("#"))
 		//		continue;
 			System.out.println(line);
+			
 			//System.out.println(line.replaceAll("/m.", "/m/"));
 			//System.out.println();
 			
@@ -270,6 +288,34 @@ public class Curate {
 		out.close();
 	}
 	
+	/**
+	 * We'll take the yagoDBpediaInstances-4fields-fields24.tsv file, then print out another file that:
+	 * (1) Only contains lower-case elements
+	 * (2) contains three tab-separated fields of the form:
+	 * <idz>[tab]<yago instance>[tab]<dbpedia instance>
+	 * and where idz is a positive integer appended with z.
+	 * @throws IOException
+	 */
+	public static void curateLinksFileYago()throws IOException{
+		Scanner in=new Scanner(new FileReader(path+"yagoDBpediaInstances-4fields-fields24.tsv"));
+		PrintWriter out=new PrintWriter(new File(path+"curated_yago_links"));
+		int count=1;
+		while(in.hasNextLine()){
+			
+			String line=(in.nextLine()).toLowerCase();
+			if(line.trim().length()==0||line.substring(0, 1).equals("#"))
+				continue;
+			String[] fields=line.split("\t");
+			if(!fields[3].contains("dbpedia.org"))
+				continue;
+			String yago=fields[1];
+			String dbpedia=fields[3];
+			out.println((count+"z")+"\t"+yago+"\t"+dbpedia);
+			count++;
+		}
+		in.close();
+		out.close();
+	}
 	/**
 	 * We'll take the instance-types_en.nt file, then print out another file that:
 	 * (1) Only contains lower-case elements

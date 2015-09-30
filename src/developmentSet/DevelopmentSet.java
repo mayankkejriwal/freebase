@@ -14,11 +14,73 @@ public class DevelopmentSet {
 	//	test();
 		//printNDuplicates(path+"freebaseDbpediaSameAsAppend", 
 			//	path+"500duplicates.txt",500);
-	
-			testParseJSONMethods(path+"5000NonDuplicates.txt");
+		buildGoldFile(path+"freebase.txt",path+"dbpedia.txt",path+"gold.txt");
+			//splitDuplicatesFileIntoInstanceFiles(path+"weka-experiments\\500duplicates.txt");
 		//printNNonDuplicates(path+"500duplicates.txt", 
 			//		path+"5000NonDuplicates.txt",5000);
 
+	}
+	
+	
+	/*
+	 * Note that the 'instance' does not have curly brackets and the subject is expected
+	 * to be the first field
+	 * 
+	 * surrounding quotes will be discarded
+	 */
+	public static String extractSubjectFromInstance(String instance){
+		String subject=instance.split("\t")[0];
+		String[] fields=subject.split("\":\\[\"");
+		if(!fields[0].substring(1, fields[0].length()).equals("subject")){
+			System.out.println("Error! Expected subject but got "+fields[0].substring(1, fields[0].length()));
+			return null;
+		}
+		else return fields[1].substring(0, fields[1].length()-2);
+			
+	}
+	
+	/*
+	 * Instances in the freebase and dbpedia files are expected to be in sameAs order
+	 * We will write out exactly two tab-delimited subjects (freebase[\t]dbpedia) to goldFile.
+	 * No surrounding quotes.
+	 */
+	public static void buildGoldFile(String freebaseInstances, String dbpediaInstances, String goldFile)throws IOException{
+		Scanner freebase=new Scanner(new FileReader(freebaseInstances));
+		Scanner dbpedia=new Scanner(new FileReader(dbpediaInstances));
+		PrintWriter out=new PrintWriter(new File(goldFile));
+		while(freebase.hasNextLine()&& dbpedia.hasNextLine()){
+			out.println(extractSubjectFromInstance(freebase.nextLine())+"\t"+extractSubjectFromInstance(dbpedia.nextLine()));
+		}
+		
+		freebase.close();
+		dbpedia.close();
+		out.close();
+	}
+	
+	/*
+	 * Specifically for dbpedia and freebase. Take the sameAs file, and split into a
+	 * dbpedia and freebase file, so we can test blocking. Make sure to build a gold-standard
+	 * file also. Will use the static 'path' so be careful about that.
+	 * 
+	 * Curly brackets will not be included in each instance. You can read each line (in an
+	 * instance file), split by tab and then send onto parseJSON
+	 */
+
+	public static void splitDuplicatesFileIntoInstanceFiles(String duplicatesFile)throws IOException{
+		Scanner in=new Scanner(new FileReader(duplicatesFile));
+		PrintWriter f_out=new PrintWriter(new File(path+"freebase.txt"));
+		PrintWriter d_out=new PrintWriter(new File(path+"dbpedia.txt"));
+		while(in.hasNextLine()){
+			String line=in.nextLine();
+			String[] fields=line.split("\t\\{\t|\t\\}");
+			String freebase=fields[1];
+			f_out.println(freebase);
+			String dbpedia=fields[3];
+			d_out.println(dbpedia);
+		}
+		in.close();
+		f_out.close();
+		d_out.close();
 	}
 	
 	/*a scratchpad tester. We run the duplicates and non-duplicates files through
@@ -54,10 +116,14 @@ public class DevelopmentSet {
 	 * Last value in each inner arraylist will be the class-value (1.0 for
 	 * duplicates, 0.0 for non-duplicates). Count should either be -1, or
 	 * the number of instances that should be extracted
+	 * As for the boolean values, put both true for non-census (e.g. freebase and
+	 * dbpedia) and both false for census.
 	 * @param pairsFile
 	 * @throws IOException
 	 */
-	public static ArrayList<ArrayList<Double>> extractInstances(String pairsFile, int count, double classValue)throws IOException{
+	public static ArrayList<ArrayList<Double>> extractInstances(String pairsFile, 
+			int count, double classValue, 
+			boolean includeSubject, boolean includeAlphaPreprocess)throws IOException{
 		ArrayList<ArrayList<Double>> result=null;
 		if(count!=-1)
 			result=new ArrayList<ArrayList<Double>>(count);
@@ -70,13 +136,38 @@ public class DevelopmentSet {
 		while(in.hasNextLine() && n<count){
 			String line=in.nextLine();
 			String[] fields=line.split("\t\\{\t|\t\\}");
-		
-			ArrayList<Double> instance=
+			ArrayList<Double> instance=null;
+			String[] d3=fields[3].split("\t");
+			String[] d1=fields[1].split("\t");
+			String[] c3=null;
+			String[] c1=null;
+			if(!includeSubject)
+			{
+				c3=new String[d3.length-1];
+				for(int i=1; i<d3.length; i++)
+					c3[i-1]=d3[i];
+				
+				c1=new String[d1.length-1];
+				for(int i=1; i<d1.length; i++)
+					c1[i-1]=d1[i];
+				
+			}else{
+				c3=d3;
+				c1=d1;
+			}
+			if(includeAlphaPreprocess)
+				instance=
 					(extractJaccardFeatures(
 						prepForAlphaJaccard(
-							parseJSONIntoStringFeatures(fields[3].split("\t"))), 
+							parseJSONIntoStringFeatures(c3)), 
 						prepForAlphaJaccard(
-							parseJSONIntoStringFeatures(fields[1].split("\t")))));
+							parseJSONIntoStringFeatures(c1))));
+			else instance=
+					(extractJaccardFeatures(
+							prepForNonAlphaJaccard(
+								parseJSONIntoStringFeatures(c3)), 
+							prepForNonAlphaJaccard(
+								parseJSONIntoStringFeatures(c1))));
 			instance.add(classValue);
 			result.add(instance);
 			n++;
@@ -92,6 +183,17 @@ public class DevelopmentSet {
 			a.add(k);
 	}
 	
+	//instances of a between the specified range [lower-upper) will be returned in a new arraylist
+		public static ArrayList<ArrayList<Double>> splitInstances(ArrayList<ArrayList<Double>> a, int lower, int upper){
+			
+			ArrayList<ArrayList<Double>> result=new ArrayList<ArrayList<Double>>();
+			for(int i=lower; i<upper; i++){
+				result.add(a.get(i));
+				
+			}
+			return result;
+		}
+	
 	public static ArrayList<Double> extractJaccardFeatures(ArrayList<HashSet<String>> preppedDB, ArrayList<HashSet<String>> preppedFB){
 		ArrayList<Double> features=new ArrayList<Double>();
 		for(int i=0; i<preppedDB.size(); i++)
@@ -101,6 +203,10 @@ public class DevelopmentSet {
 		return features;
 	}
 	
+	
+	/*
+	 * We're ignoring the integer part. 
+	 */
 	public static ArrayList<HashSet<String>> prepForAlphaJaccard(ArrayList<HashMap<String,Integer>> list){
 		ArrayList<HashSet<String>> preppedList=new ArrayList<HashSet<String>>();
 		for(HashMap<String,Integer> map:list){
@@ -113,6 +219,55 @@ public class DevelopmentSet {
 		}
 		return preppedList;
 	}
+	
+	/*
+	 * We're ignoring the integer part. 
+	 */
+	public static HashSet<String> prepForAlphaJaccard(HashMap<String,Integer> map){
+		HashSet<String> tmp=new HashSet<String>();
+		
+			for(String key:map.keySet())
+				if(isAlphabeticOnly(key))
+					tmp.add(key);
+			
+		return tmp;
+	}
+
+
+	/*
+	 * We're ignoring the integer part. 
+	 */
+	public static ArrayList<HashSet<String>> prepForNonAlphaJaccard(ArrayList<HashMap<String,Integer>> list){
+		ArrayList<HashSet<String>> preppedList=new ArrayList<HashSet<String>>();
+		for(HashMap<String,Integer> map:list){
+			Set<String> keys=map.keySet();
+			HashSet<String> tmp=new HashSet<String>();
+			for(String key:keys)
+				
+					tmp.add(key);
+			preppedList.add(tmp);
+		}
+		return preppedList;
+	}
+
+
+	/*
+	 * We're ignoring the integer part. 
+	 */
+	public static HashSet<String> retainAlphaTokens(HashMap<String,Integer> map){
+		HashSet<String> tmp=new HashSet<String>();
+		
+			Set<String> keys=map.keySet();
+			
+			for(String key:keys)
+				if(isAlphabeticOnly(key))
+					tmp.add(key);
+			
+		
+		return tmp;
+	}
+	
+	
 	//we've made this foolproof and tested it.
 	private static boolean isAlphabeticOnly(String key){
 		boolean result=true;

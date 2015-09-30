@@ -94,7 +94,7 @@ public class Jaccard {
 		
 		int union=unionCardinality(set1, set2);
 		if(union==0){
-			System.out.println("Problems: union is 0");
+		//	System.out.println("Problems: union is 0");
 			return -1.0;
 		}
 		int intersection=intersectionCardinality(set1, set2);
