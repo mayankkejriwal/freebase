@@ -7,8 +7,8 @@ public class Curate {
 
 	
 	public static String path="C:\\Users\\Mayank\\SkyDrive\\Documents\\"
-			+ "experiments\\yago\\"; 
-	static String file=path+"curated_yago_links";
+			+ "experiments\\trash\\"; 
+	static String file=path+"dbpediaFreebaseYagoSameAsAppend.crdownload";
 	
 	public static void main(String[] args)throws IOException {
 		//testDbpediaDelimiter(15);
@@ -23,7 +23,7 @@ public class Curate {
 		
 		//filterRankedFile(file,path+"f-db-jaccard-top3.txt",3);
 		//debugCuratedInstanceTypes();
-		printN(5);
+		printN(10);
 		//printNumLines();
 		//curateLinksFileYago();
 
@@ -219,7 +219,8 @@ public class Curate {
 			//if(line.trim().length()==0||line.substring(0, 1).equals("#"))
 		//		continue;
 			System.out.println(line);
-			
+		//	String[] fields=line.split("\t\\{\t|\t\\}");
+			//System.out.println(fields[0]);
 			//System.out.println(line.replaceAll("/m.", "/m/"));
 			//System.out.println();
 			

@@ -12,12 +12,12 @@ public class DevelopmentSet {
 	
 	public static void main(String[] args)throws IOException {
 	//	test();
-		//printNDuplicates(path+"freebaseDbpediaSameAsAppend", 
-			//	path+"500duplicates.txt",500);
-		buildGoldFile(path+"freebase.txt",path+"dbpedia.txt",path+"gold.txt");
+		printNDuplicates(path+"freebaseDbpediaSameAsAppend", 
+				path+"100000duplicates.txt",100000);
+		//buildGoldFile(path+"freebase.txt",path+"dbpedia.txt",path+"gold.txt");
 			//splitDuplicatesFileIntoInstanceFiles(path+"weka-experiments\\500duplicates.txt");
-		//printNNonDuplicates(path+"500duplicates.txt", 
-			//		path+"5000NonDuplicates.txt",5000);
+		//printNNonDuplicates(path+"1000duplicates.txt", 
+			//		path+"100000NonDuplicates.txt",100000);
 
 	}
 	
@@ -449,8 +449,8 @@ public class DevelopmentSet {
 	 * send the duplicates file into this, but make sure to do extensive testing first.
 	 */
 	public static void printNNonDuplicates(String duplicatesFile, String outfile, int n)throws IOException{
-		ArrayList<String> dbpedia=new ArrayList<String>(500);
-		ArrayList<String> freebase=new ArrayList<String>(500);
+		ArrayList<String> dbpedia=new ArrayList<String>(1000);
+		ArrayList<String> freebase=new ArrayList<String>(1000);
 		//dbpedia entities referring to freebase entities
 		HashMap<String, HashSet<String>> dbpediaIndex=new HashMap<String, HashSet<String>>();
 		Scanner in=new Scanner(new FileReader(duplicatesFile));
