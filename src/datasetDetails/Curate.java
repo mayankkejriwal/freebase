@@ -7,8 +7,8 @@ public class Curate {
 
 	
 	public static String path="C:\\Users\\Mayank\\SkyDrive\\Documents\\"
-			+ "experiments\\freebase\\derived-data-files\\"; 
-	static String file=path+"consolidatedGlobalTokens2";
+			+ "experiments\\sameAs\\experimental-data\\full-blocking-classification\\"; 
+	static String file=path+"MatcherOn100000NonDuplicatesZero.txt";
 	
 	public static void main(String[] args)throws IOException {
 		//testDbpediaDelimiter(15);
@@ -19,11 +19,13 @@ public class Curate {
 		//checkCounts();
 		//printFirstLastID(file);
 		
-		analysis(file);
+		//analysis(file);
 		
 		//filterRankedFile(file,path+"f-db-jaccard-top3.txt",3);
 		//debugCuratedInstanceTypes();
-	//	printN(10);
+		//extractYagoTypes(path+"raw-data-files\\yagoSimpleTypes-4fields-fields24.tsv",
+			//	path+"derived-data-files\\yagoTypes");
+		printN(10);
 		//printNumLines();
 		//curateLinksFileYago();
 
@@ -189,7 +191,10 @@ public class Curate {
 			String line=in.nextLine();
 			//if(line.trim().length()==0||line.substring(0, 1).equals("#"))
 		//		continue;
+		//	if(line.contains("dtype-org-m"))
 			System.out.println(line);
+			
+		//	System.out.println(line.split("\t").length);
 		//	String[] fields=line.split("\t\\{\t|\t\\}");
 			//System.out.println(fields[0]);
 			//System.out.println(line.replaceAll("/m.", "/m/"));
@@ -279,6 +284,25 @@ public class Curate {
 		in.close();
 		out.close();
 	}
+	
+	/**
+	 * 
+	 * @param in The input file. Right now, this is the raw-data-files/yagoSimpleTypes-4fields-fields24.tsv
+	 * @param out The output file. It will contain output of the type <yago-subject>[tab]<yago-type>
+	 * @throws IOException
+	 */
+	public static void extractYagoTypes(String in, String out)throws IOException{
+		Scanner inf=new Scanner(new FileReader(in));
+		PrintWriter outf=new PrintWriter(new File(out));
+		while(inf.hasNextLine()){
+			String[] line=inf.nextLine().split("\t");
+			if(line.length!=4)
+				System.out.println("Erroneous line : "+line[0]);
+			outf.println(line[1]+"\t"+line[3]);
+		}
+		outf.close();
+		inf.close();
+	}
 	/**
 	 * We'll take the instance-types_en.nt file, then print out another file that:
 	 * (1) Only contains lower-case elements
@@ -329,6 +353,10 @@ public class Curate {
 		return result;
 	}
 
+	/*
+	 * Union the two hashmaps. The value is always a long. If keys are shared,
+	 * add the longs. 
+	 */
 	private static HashMap<String,String> combine(HashMap<String, String> a, HashMap<String, String> b){
 		HashMap<String, String> result=new HashMap<String, String>();
 		for(String k: a.keySet()){

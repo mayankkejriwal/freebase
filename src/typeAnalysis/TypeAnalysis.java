@@ -35,12 +35,12 @@ public class TypeAnalysis {
 	
 	/*
 	 * Recall that infile was of the form:
-	 * <freebase-type>[tab]<dbpedia-type>[tab]<double-score>
+	 * <idy>[tab]<freebase-type>[tab]<dbpedia-type>[tab]<double-score>
 	 * The data written in the outfile is of form:
 	 * recall,precision,f-measure 
 	 * (in decimals, not percentage). There is no header either. 
 	 * The multiplicative factor is needed mainly because of low scores in tf-idf. The
-	 * current usage is: 100 for the jaccard evalulations, 1000 for tf-norm1 and 10,000 for tf-norm2
+	 * default is 100.
 	 */
 	public void analyze(String infile, String outfile, int multiplicativeFactor)throws IOException{
 		double max=max(infile);

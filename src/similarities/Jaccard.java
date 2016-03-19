@@ -103,6 +103,7 @@ public class Jaccard {
 	}
 	
 	static String path="C:\\Users\\Mayank\\SkyDrive\\Documents\\experiments\\";
+	
 	static String dbpediaFile=path+"dbpedia\\consolidatedGlobalTokens";
 	static String freebaseFile=path+"freebase\\combinedConsolidatedTokens";
 	static String outfile=path+"type-experiments\\f-db-jaccard-withZeros.txt";
