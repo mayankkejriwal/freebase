@@ -232,6 +232,15 @@ public class DevelopmentSet {
 			
 		return tmp;
 	}
+	
+	/*
+	 * We're ignoring the integer part. 
+	 */
+	public static HashSet<String> prepForNonAlphaJaccard(HashMap<String,Integer> map){
+		
+			
+		return new HashSet<String>(map.keySet());
+	}
 
 
 	/*

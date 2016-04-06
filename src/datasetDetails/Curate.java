@@ -7,8 +7,8 @@ public class Curate {
 
 	
 	public static String path="C:\\Users\\Mayank\\SkyDrive\\Documents\\"
-			+ "experiments\\sameAs\\experimental-data\\full-blocking-classification\\"; 
-	static String file=path+"MatcherOn100000NonDuplicatesZero.txt";
+			+ "experiments\\sameAs\\derived-data-files\\"; 
+	static String file=path+"freebaseDBpediaSameAsAppend";
 	
 	public static void main(String[] args)throws IOException {
 		//testDbpediaDelimiter(15);
