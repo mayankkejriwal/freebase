@@ -68,4 +68,11 @@ public class Analysis {
 			result.add(k);
 		return result;
 	}
+
+	public static ArrayList<Double> buildThresholdRange(double start, double end, double increment){
+		ArrayList<Double> result=new ArrayList<Double>();
+		for(double k=start; k<=end; k+=increment)
+			result.add(k);
+		return result;
+	}
 }
