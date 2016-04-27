@@ -8,7 +8,7 @@ public class Curate {
 	
 	public static String path="C:\\Users\\Mayank\\SkyDrive\\Documents\\"
 			+ "experiments\\sameAs\\derived-data-files\\"; 
-	static String file=path+"freebaseDBpediaSameAsAppend";
+	static String file=path+"dbpediaFreebaseYagoSameAsAppend";
 	
 	public static void main(String[] args)throws IOException {
 		//testDbpediaDelimiter(15);
